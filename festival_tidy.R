@@ -2,6 +2,7 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 library(chron)
+library(xlsx)
 #####ajustes adicionais
 ###tidyando os dados
 
@@ -63,7 +64,18 @@ festival_do_rio %>%
 festival_do_rio %>% 
     mutate(hora_fim = times(hora_fim)) -> festival_do_rio
 
+
+load("festival_do_rio_tidy.RData")
+
+#organizando o dataset para visualização inicial
+festival_do_rio %>% 
+    arrange(data, hora) -> festival_do_rio
+
+#retirando o texto <U+200B> da sinopse
+festival_do_rio %>% 
+    mutate(sinopse = gsub("<U+200B>", "", sinopse)) -> festival_do_rio
+
 #salvando csv e Rdata
 save(festival_do_rio, file = "festival_do_rio_tidy.RData")
-write.csv(festival_do_rio, file = "festival_do_rio_tidy.csv")
-
+write.csv2(festival_do_rio, row.names = FALSE,file = "festival_do_rio_tidy.csv")
+write.xlsx(festival_do_rio, file = "festival_do_rio_tidy.xlsx")
