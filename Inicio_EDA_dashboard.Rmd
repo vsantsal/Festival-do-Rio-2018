@@ -1,0 +1,92 @@
+---
+title: "Inicio da EDA com dashboards"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(stringr)
+library(tibble)
+
+load("festival_tidy.RData")
+```
+
+Column {data-width = 550}
+-----------------------------------------------------------------------
+
+### Países mais frequentes
+
+```{r}
+paises <- festival_do_rio$paises
+paises <- paises[!is.na(paises)]
+
+#Separando os países de cada filme
+str_split(paises, "/") %>%
+  unlist %>% str_trim  -> paises
+
+#Transformando em um dataset com frequencias
+as_tibble(paises) %>%
+  rename(pais = value) %>%
+  count(pais, sort = T) %>%
+  mutate(pais = reorder(pais,n)) -> paises
+
+# Fazendo o gráfico
+g <- ggplot(data = paises, aes(x = pais, y = n)) +
+  geom_col() +
+  coord_flip() +
+  xlab(NULL) + 
+  ylab("Países") +
+  ggtitle("Frequências dos Países") +
+  theme_minimal()
+ggplotly(g)
+```
+
+Column {data-width = 450}
+-----------------------------------------------------------------------
+
+### Histograma das durações
+
+```{r}
+#### Duração ####
+tempos <- festival_do_rio %>% 
+  select(duracao, genero) %>% 
+  dplyr::filter(!is.na(duracao)) #achei que poderi confundir com o filter do plotly 
+
+#Histograma da duração
+ggplot(data = tempos) +
+  aes(x = duracao, y=..density..) +
+  geom_histogram(bins = 30, fill = "#0c4c8a") +
+  labs(title = "Histograma das Durações dos Filmes",
+       x = "Duração", y = NULL) +
+  theme_minimal() -> g
+ggplotly(g)
+
+```
+
+### Número de Sessões por Mostra
+
+```{r}
+#### Mostras com mais filmes ####
+mostras <- festival_do_rio %>%
+  select(mostra) %>%
+  filter(!is.na(mostra)) %>% 
+  count(mostra) %>%
+  mutate(mostra = reorder(mostra, n))
+
+g <- ggplot(data = mostras)+
+  aes(x = mostra, y = n) +
+  geom_col() +
+  coord_flip() +
+  ylab("Número de sessões") +
+  ggtitle("Número de Sessões por mostra no festival do Rio") +
+  theme_minimal()
+ggplotly(g)
+
+```
+
