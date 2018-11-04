@@ -58,8 +58,10 @@ mostras <- festival_do_rio %>%
 g <- ggplot(data = mostras)+
   aes(x = mostra, y = n) +
   geom_col() +
-  xlab("Número de Filmes") +
-  coord_flip() 
+  ylab("Número de Filmes") +
+  coord_flip() +
+  ggtitle("Número de filmes por mostra") +
+  theme_minimal()
 ggplotly(g)
   
 
