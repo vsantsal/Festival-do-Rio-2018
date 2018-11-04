@@ -49,15 +49,16 @@ ggplotly(g)
 
 #### Mostras com mais filmes ####
 mostras <- festival_do_rio %>%
-  select(mostra) %>%
+  select(mostra,titulo) %>%
   filter(!is.na(mostra)) %>% 
-  count(mostra) %>%
+  group_by(mostra) %>%
+  summarise(n = length(unique(titulo))) %>%
   mutate(mostra = reorder(mostra, n))
 
 g <- ggplot(data = mostras)+
   aes(x = mostra, y = n) +
   geom_col() +
-  xlab("Número de sessões") +
+  xlab("Número de Filmes") +
   coord_flip() 
 ggplotly(g)
   
